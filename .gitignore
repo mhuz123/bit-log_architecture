@@ -2,3 +2,4 @@
 .idea
 generator/logs/
 generator/stats/
+fluent-bit/logs/

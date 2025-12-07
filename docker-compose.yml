@@ -14,12 +14,14 @@ services:
 
   zookeeper:
     image: wurstmeister/zookeeper:latest
+    container_name: zookeeper
     ports:
       - "2181:2181"
     stop_grace_period: 20s
 
   kafka:
     image: wurstmeister/kafka:2.13-2.8.1
+    container_name: kafka
     ports:
       - "9092:9092"
     environment:
@@ -38,9 +40,11 @@ services:
 
   fluent-bit:
       image: fluent/fluent-bit:4.2.0
+      container_name: fluent-bit
       volumes:
         - ./fluent-bit:/fluent-bit/etc
         - ./generator/logs:/app/logs
+        - ./fluent-bit/logs:/fluent-bit/logs
       depends_on:
           kafka:
             condition: service_healthy
@@ -49,6 +53,7 @@ services:
     build:
       context: ./logstash
     image: logstash
+    container_name: logstash
     ports:
       - "9600:9600"
     #volumes:
@@ -62,6 +67,7 @@ services:
     environment:
       CLICKHOUSE_USER: clickhouse
       CLICKHOUSE_PASSWORD: clickhouse
+    container_name: clickhouse
     ports:
       - "8123:8123"
     volumes:
@@ -77,6 +83,7 @@ services:
   grafana:
     build:
       context: ./grafana
+    container_name: grafana
     ports:
       - "3000:3000"
     depends_on:
@@ -103,6 +110,24 @@ services:
       clickhouse:
         condition: service_healthy
     restart: unless-stopped
+
+  fluent-bit-monitor:
+    build:
+      context: ./fluent-bit-monitor
+      dockerfile: Dockerfile
+    container_name: fluent-bit-monitor
+    volumes:
+      - ./fluent-bit/logs:/fluent-bit/logs:ro
+    depends_on:
+      - fluent-bit
+
+  cpu-monitor:
+    build:
+      context: ./cpu-monitor
+      dockerfile: Dockerfile
+    container_name: cpu-monitor
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
 
 volumes:
   clickhouse_data:
