@@ -6,7 +6,7 @@ WORKDIR /app
 RUN pip install clickhouse-connect
 
 # Copy the script
-COPY clickhouse-throughput-monitor.py /app/clickhouse-throughput-monitor.py
+COPY clickhouse-monitor.py /app/clickhouse-monitor.py
 
 # Run the monitor
-CMD ["python", "-u", "/app/clickhouse-throughput-monitor.py"]
+CMD ["python", "-u", "/app/clickhouse-monitor.py"]

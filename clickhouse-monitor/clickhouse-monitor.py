@@ -9,7 +9,8 @@ CLICKHOUSE_PORT = 8123
 CLICKHOUSE_USER = 'clickhouse'
 CLICKHOUSE_PASSWORD = 'clickhouse'
 TABLE = 'logs'
-INTERVAL = 10        # seconds, configurable
+INTERVAL = 10        # seconds
+SLEEP_TIME = 0.1     # seconds between time checks
 RETRY_INTERVAL = 5
 
 def connect():
@@ -61,7 +62,7 @@ if __name__ == "__main__":
     prev_rows = get_rows(client) or 0
     total_rows = prev_rows
 
-    print(f"Monitoring ClickHouse table '{TABLE}' throughput every {INTERVAL} second(s)...")
+    print(f"Monitoring ClickHouse table '{TABLE}' every {INTERVAL} second(s)...")
     print("Time | Rows in last interval | Total rows so far")
 
     prev_time = time.time()
@@ -80,11 +81,11 @@ if __name__ == "__main__":
             total_rows += diff
             timestamp = time.strftime('%H:%M:%S')
 
-            print(f"{timestamp} | {diff} | {total_rows}", flush=True)
+            print(f"{timestamp} | THROUGHPUT | last interval {diff} | total {total_rows}", flush=True)
 
             prev_rows = cur_rows
             prev_time = cur_time
 
             print_latency(client)
 
-        time.sleep(0.2)
+        time.sleep(SLEEP_TIME)

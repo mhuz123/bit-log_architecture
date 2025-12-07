@@ -2,6 +2,7 @@ from fastapi import FastAPI, BackgroundTasks
 from pydantic import BaseModel
 import time, json, random, os
 
+TOTAL_LOGS_GENERATED = 0
 app = FastAPI()
 
 
@@ -71,12 +72,17 @@ def generate_logs(rate, mode, duration):
     max_logs = max(logs_per_sec) if logs_per_sec else 0
     min_logs = min(logs_per_sec) if logs_per_sec else 0
 
+    global TOTAL_LOGS_GENERATED
+    TOTAL_LOGS_GENERATED += total_logs
+    print(f"Total logs across all tests: {TOTAL_LOGS_GENERATED}", flush=True)
+
     stats = {
         "rate": rate,
         "mode": mode,
         "duration": duration,
         "start_time": start_time,
-        "total_logs": total_logs,
+        "total_logs_in_test": total_logs,
+        "total_logs_in_all_tests": TOTAL_LOGS_GENERATED,
         "avg_logs_per_sec": avg_logs,
         "max_logs_per_sec": max_logs,
         "min_logs_per_sec": min_logs,

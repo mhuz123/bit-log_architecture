@@ -86,9 +86,9 @@ services:
   kafka-monitor:
     image: wurstmeister/kafka:2.13-2.8.1
     container_name: kafka-monitor
-    command: ["bash", "/kafka-throughput-monitor.sh"]
+    command: ["bash", "/kafka-monitor.sh"]
     volumes:
-      - ./kafka-throughput-monitor.sh:/kafka-throughput-monitor.sh:ro
+      - ./kafka-monitor.sh:/kafka-monitor.sh:ro
     depends_on:
       - kafka
     networks:
