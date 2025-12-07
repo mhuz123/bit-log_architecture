@@ -1,4 +1,4 @@
 .gitignore
-.git
 .idea
-./generator/logs
+generator/logs/
+generator/stats/

@@ -5,10 +5,12 @@ services:
       context: ./generator
       dockerfile: Dockerfile
     image: generator
-    working_dir: /app
+    container_name: generator
+    ports:
+      - "8000:8000"
     volumes:
-      - ./generator:/app
       - ./generator/logs:/app/logs
+      - ./generator/stats:/app/stats
 
   zookeeper:
     image: wurstmeister/zookeeper:latest
@@ -66,6 +68,11 @@ services:
       - ./clickhouse/init.sql:/docker-entrypoint-initdb.d/init.sql
       - clickhouse_data:/var/lib/clickhouse
     stop_grace_period: 60s
+    healthcheck:
+      test: ["CMD-SHELL", "clickhouse-client --query 'SELECT 1' || exit 1"]
+      interval: 5s
+      retries: 10
+      start_period: 20s
 
   grafana:
     build:
@@ -74,6 +81,28 @@ services:
       - "3000:3000"
     depends_on:
       - clickhouse
+
+
+  kafka-monitor:
+    image: wurstmeister/kafka:2.13-2.8.1
+    container_name: kafka-monitor
+    command: ["bash", "/kafka-throughput-monitor.sh"]
+    volumes:
+      - ./kafka-throughput-monitor.sh:/kafka-throughput-monitor.sh:ro
+    depends_on:
+      - kafka
+    networks:
+      - default
+
+  clickhouse-monitor:
+    build:
+      context: ./clickhouse-monitor
+      dockerfile: Dockerfile
+    container_name: clickhouse-monitor
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   clickhouse_data:
