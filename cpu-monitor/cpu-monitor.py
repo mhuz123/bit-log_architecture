@@ -16,24 +16,33 @@ def calculate_cpu_percent(stats):
 
 def monitor_containers():
     print(f"{'Time':<10} {'Container':<30} {'CPU %':<10} {'RAM Usage':<20}")
+    next_check = time.time() + INTERVAL
+
     while True:
-        timestamp = time.strftime("%H:%M:%S")
-        print(f"{timestamp:<10}------------------------------------------------")
-        for container in client.containers.list():
-            try:
-                stats = container.stats(stream=False)
+        now = time.time()
+        if now >= next_check:
+            timestamp = time.strftime("%H:%M:%S")
+            print(f"{timestamp:<10}------------------------------------------------")
+            for container in client.containers.list():
+                try:
+                    stats = container.stats(stream=False)
 
-                cpu_percent = calculate_cpu_percent(stats)
+                    cpu_percent = calculate_cpu_percent(stats)
 
-                mem_usage = stats['memory_stats']['usage']
-                mem_limit = stats['memory_stats']['limit']
-                mem_percent = (mem_usage / mem_limit) * 100 if mem_limit > 0 else 0
+                    mem_usage = stats['memory_stats']['usage']
+                    mem_limit = stats['memory_stats']['limit']
+                    mem_percent = (mem_usage / mem_limit) * 100 if mem_limit > 0 else 0
 
-                print(
-                    f"{timestamp:<10} {container.name:<30} | {cpu_percent:<10.2f} | {mem_usage / 1024 / 1024:.2f} MiB ({mem_percent:.1f}%)", flush=True)
-            except Exception as e:
-                print(f"{timestamp:<10} {container.name:<30} | Error: {e}")
-        time.sleep(INTERVAL)
+                    print(
+                        f"{timestamp:<10} {container.name:<30} | {cpu_percent:<10.2f} | "
+                        f"{mem_usage / 1024 / 1024:.2f} MiB ({mem_percent:.1f}%)",
+                        flush=True
+                    )
+                except Exception as e:
+                    print(f"{timestamp:<10} {container.name:<30} | Error: {e}")
+            next_check += INTERVAL
+
+        time.sleep(0.05)
 
 
 if __name__ == "__main__":

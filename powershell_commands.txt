@@ -1,0 +1,14 @@
+command na extrahovanie vystupu generatora
+Get-Content input.txt | ForEach-Object { ($_ -split '\|')[-1].Trim() } | Set-Content output.txt
+
+command na extrahovanie vystupu z fluentbit monitor a clickhouse monitor
+Get-Content input.txt | ForEach-Object { if ($_ -match 'last interval (\d+)') { $matches[1] }} | Set-Content output.txt
+
+command na extrahovanie vystupu z kafka monitor
+Get-Content input.txt | ForEach-Object { if ($_ -match 'last interval: (\d+)') { $matches[1] }} | Set-Content output.txt
+
+command na extrahovanie priemernej latencie z clickhouse monitor
+Get-Content input.txt | ForEach-Object { if ($_ -match 'Avg: (\d+)') { $matches[1] }} | Set-Content output.txt
+
+command na extrahovanie CPU usage z CPU monitor (pre kazdy kontainer samostatne)
+Get-Content input.txt | ForEach-Object {if ($_ -match 'clickhouse\s+\|\s+([\d.]+)') { $matches[1] }
