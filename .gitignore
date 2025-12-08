@@ -1,5 +1,9 @@
 .gitignore
 .idea
-generator/logs/
-generator/stats/
-fluent-bit/logs/
+generator/logs/*
+generator/stats/*
+fluent-bit/logs/*
+
+!generator/logs/.gitkeep
+!generator/stats/.gitkeep
+!fluent-bit/logs/.gitkeep
